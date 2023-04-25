@@ -1,2 +1,4 @@
 sked
 *.o
+logfile
+result

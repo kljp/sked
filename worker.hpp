@@ -47,19 +47,31 @@ class worker{
 		}
 };
 
-void run_worker(int id_wk, msd::channel<job> &jobs, int num_queue){
+void run_worker(int id_wk, msd::channel<job> &jobs, msd::channel<job> &jobs_log, bool flag_log, int num_queue){
 
 	thread_local std::mt19937 generator(std::random_device{}());
 	std::uniform_int_distribution<int> distribution(0, 1000000);
 	worker wk(id_wk, 1, distribution(generator) % num_queue);
 	while(true){
 		usleep(100000);
-		bool pred = distribution(generator) % 100 < 7 ? true : false;
+		bool pred = distribution(generator) % 100 < 50 ? true : false;
 		if(pred){
-			int req_core = (distribution(generator) % 8 + 1) * 2;
-			int t_req = (distribution(generator) + 1) % 60 + 100;
-			wk.batch(req_core, t_req) >> jobs;
-//			break;
+			if(flag_log){
+				if(jobs_log.size() > 0){
+					job jb;
+					jb << jobs_log;
+					jb.set_id_wk(id_wk);
+					jb >> jobs;
+				}
+				else
+					break;
+			}
+			else{
+				int req_core = (distribution(generator) % 8 + 1) * 2;
+				int t_req = (distribution(generator) + 1) % 60 + 100;
+				wk.batch(req_core, t_req) >> jobs;
+//				break;
+			}
 		}
 	}
 }

@@ -51,6 +51,8 @@ class job{
 
 		int get_t_req(){return t_req;}
 
+		void set_id_wk(int id_wk){this->id_wk = id_wk;}
+
 		void set_host_alloc(int host_alloc){this->host_alloc = host_alloc;}
 
 		void copy_job(job jb_src){
@@ -69,6 +71,32 @@ void run_job(job &jb, msd::channel<job> &jobs_fin){
 
 	sleep(jb.get_t_req());
 	jb >> jobs_fin;
+	return;
+}
+
+void parse_log(std::string filename, msd::channel<job> *&jobs_log){
+
+	std::ifstream file;
+	file.open(filename.c_str(), std::ios::in);
+	if(!file.is_open()){exit(-1);}
+
+	std::string line;
+	while(true){
+	
+		std::getline(file, line);
+		if(line[0] != '%')
+			break;
+	}
+
+	int id_jb, type_queue, t_req, req_core;
+	while(std::getline(file, line)){
+	
+		if(sscanf(line.c_str(), "%d %d %d %d", &id_jb, &type_queue, &t_req, &req_core) < 4){exit(-1);};
+		job jb(std::to_string(id_jb), -1, 3, type_queue, req_core, t_req);
+		jb >> *jobs_log;
+	}
+
+	file.close();
 	return;
 }
 

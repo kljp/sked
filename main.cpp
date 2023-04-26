@@ -82,7 +82,7 @@ int main(int argc, char **argv){
 		workers.push_back(std::thread(run_worker, i, std::ref(jobs), std::ref(*jobs_log), is_checked_fn_log, tplg.num_queue));
 	
 	std::thread monitor = std::thread(run_monitor, std::ref(tplg), std::ref(topo), fn_res, is_checked_fn_res);
-	//run_monitor(tplg);
+
 	for(int i = 0; i < num_worker; i++)
 		workers[i].join();
 	if(is_checked_fn_log)

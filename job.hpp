@@ -53,6 +53,10 @@ class job{
 
 		void set_id_wk(int id_wk){this->id_wk = id_wk;}
 
+		void set_type_queue(int type_queue){this->type_queue = type_queue;}
+
+		void set_req_core(int req_core){this->req_core = req_core;}
+
 		void set_host_alloc(int host_alloc){this->host_alloc = host_alloc;}
 
 		void copy_job(job jb_src){

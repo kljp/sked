@@ -38,7 +38,7 @@ class worker{
 
 		int get_cnt_job(){return cnt_job;}
 
-		job batch(int req_core, int t_req){
+		job batch(int type_queue, int req_core, int t_req){
 
 			std::string id_jb = std::to_string(id_wk) + "_" + std::to_string(cnt_job);
 			job jb(id_jb, id_wk, 3, type_queue, req_core, t_req);
@@ -67,10 +67,10 @@ void run_worker(int id_wk, msd::channel<job> &jobs, msd::channel<job> &jobs_log,
 					break;
 			}
 			else{
+				int type_queue = distribution(generator) % num_queue;
 				int req_core = (distribution(generator) % 8 + 1) * 2;
-				int t_req = (distribution(generator) + 1) % 60 + 100;
-				wk.batch(req_core, t_req) >> jobs;
-//				break;
+				int t_req = distribution(generator) % 160 + 10;
+				wk.batch(type_queue, req_core, t_req) >> jobs;
 			}
 		}
 	}

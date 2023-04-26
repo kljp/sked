@@ -74,7 +74,7 @@ void run_monitor(topology tplg, std::vector<std::vector<host>> &topo, std::strin
 			printer += ("  " + std::to_string(util_per));
 			printer += "   ";
 		}
-		printer += "\nOvr.util: ";	
+		printer += "\nOvr.Util: ";	
 		float util_ovr_per = (float) ovr_core / num_core;
 		printer += (" " + std::to_string(util_ovr_per));
 		printer += "   \n";

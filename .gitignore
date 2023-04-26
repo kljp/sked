@@ -1,4 +1,5 @@
 sked
 *.o
-logfile
 result
+parser/results/
+parser/parsed_results/

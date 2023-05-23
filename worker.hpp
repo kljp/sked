@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include "job.hpp"
 #include "channel/channel.hpp"
+#include "timer.hpp"
 
 class worker{
 
@@ -41,7 +42,7 @@ class worker{
 		job batch(int type_queue, int req_core, int t_req){
 
 			std::string id_jb = std::to_string(id_wk) + "_" + std::to_string(cnt_job);
-			job jb(id_jb, id_wk, 3, type_queue, req_core, t_req);
+			job jb(id_jb, id_wk, 3, type_queue, 0, req_core, t_req);
 			cnt_job++;
 			return jb;
 		}
@@ -52,11 +53,15 @@ void run_worker(int id_wk, msd::channel<job> &jobs, msd::channel<job> &jobs_log,
 	thread_local std::mt19937 generator(std::random_device{}());
 	std::uniform_int_distribution<int> distribution(0, 1000000);
 	worker wk(id_wk, 1, distribution(generator) % num_queue);
+	int t_st = timer();
+
 	while(true){
-		usleep(100000);
-		bool pred = distribution(generator) % 100 < 50 ? true : false;
-		if(pred){
-			if(flag_log){
+		usleep(65000);
+		job jb = jobs_log.get_queue().front();
+		int t_submit = jb.get_t_submit();
+		bool pred = timer() - t_st > t_submit ? true : false; //distribution(generator) % 100 < 50 ? true : false;
+		if(flag_log){
+			if(pred){
 				if(jobs_log.size() > 0){
 					job jb;
 					jb << jobs_log;
@@ -66,12 +71,12 @@ void run_worker(int id_wk, msd::channel<job> &jobs, msd::channel<job> &jobs_log,
 				else
 					break;
 			}
-			else{
-				int type_queue = distribution(generator) % num_queue;
-				int req_core = (distribution(generator) % 8 + 1) * 2;
-				int t_req = distribution(generator) % 160 + 10;
-				wk.batch(type_queue, req_core, t_req) >> jobs;
-			}
+		}
+		else{
+			int type_queue = distribution(generator) % num_queue;
+			int req_core = (distribution(generator) % 8 + 1) * 2;
+			int t_req = distribution(generator) % 160 + 10;
+			wk.batch(type_queue, req_core, t_req) >> jobs;
 		}
 	}
 }

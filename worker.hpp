@@ -5,6 +5,7 @@
 //#include <string>
 //#include <cstdlib>
 #include <random>
+#include <algorithm>
 //#include <ctime>
 #include <unistd.h>
 #include "job.hpp"
@@ -55,22 +56,46 @@ void run_worker(int id_wk, msd::channel<job> &jobs, msd::channel<job> &jobs_log,
 	worker wk(id_wk, 1, distribution(generator) % num_queue);
 	int t_st = timer();
 	bool pred;
+	std::vector<job> temp_vec;
+	int t_curr = t_st;
+	int t_prev = t_st;
 
 	while(true){
-		usleep(65000);
+		usleep(1000);
+		if(jobs_log.size() == 0)
+			break;
 		job jb = jobs_log.get_queue().front();
 		int t_submit = jb.get_t_submit();
 		if(flag_log){
-			pred = timer() - t_st > t_submit ? true : false;
+			t_curr = timer();
+			pred = t_curr - t_st > t_submit ? true : false;
 			if(pred){
-				if(jobs_log.size() > 0){
-					job jb;
-					jb << jobs_log;
-					jb.set_id_wk(id_wk);
-					jb >> jobs;
+				job jb;
+				jb << jobs_log;
+				jb.set_id_wk(id_wk);
+				temp_vec.push_back(jb);
+			}
+
+			int sz_temp_vec = temp_vec.size();
+			if(t_curr - t_prev > 2 && sz_temp_vec > 0){
+				/******************************************
+				 **** Scheduling policy should be here ****
+				 ******************************************/
+				// 1. FCFS
+				// do nothing
+				// 2. SJF
+				std::sort(temp_vec.begin(), temp_vec.end(), [](job x, job y) -> bool{
+					int t_x = x.get_t_req();
+					int t_y = y.get_t_req();
+					if(t_x == t_y) return x.get_t_submit() < y.get_t_submit();
+					return t_x < t_y;
+				}); // SJF finished
+				for(int i = 0; i < sz_temp_vec; i++){
+					usleep(65000);
+					temp_vec[i] >> jobs;
 				}
-				else
-					break;
+				temp_vec.clear(); // memory capcity is maintained
+				t_prev = t_curr;
 			}
 		}
 		else{

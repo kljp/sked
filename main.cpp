@@ -79,7 +79,7 @@ int main(int argc, char **argv){
 	int num_worker = 1;
 	std::vector<std::thread> workers;
 	for(int i = 0; i < num_worker; i++)
-		workers.push_back(std::thread(run_worker, i, std::ref(jobs), std::ref(*jobs_log), is_checked_fn_log, tplg.num_queue));
+		workers.push_back(std::thread(run_worker, i, std::ref(jobs), std::ref(*jobs_log), std::ref(topo), is_checked_fn_log, tplg.num_queue));
 	
 	std::thread monitor = std::thread(run_monitor, std::ref(tplg), std::ref(topo), fn_res, is_checked_fn_res);
 

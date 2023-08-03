@@ -23,6 +23,7 @@ class job{
 		double runtime;
 		int state = -1;
 		int host_alloc = -1;
+		float score = 0;
 	
 	public:
 		job(){}
@@ -54,6 +55,8 @@ class job{
 
 		int get_t_req(){return t_req;}
 
+		float get_score(){return score;}
+
 		void set_id_wk(int id_wk){this->id_wk = id_wk;}
 
 		void set_type_queue(int type_queue){this->type_queue = type_queue;}
@@ -61,6 +64,10 @@ class job{
 		void set_req_core(int req_core){this->req_core = req_core;}
 
 		void set_host_alloc(int host_alloc){this->host_alloc = host_alloc;}
+
+		void set_t_submit(int t_submit){this->t_submit = t_submit;}
+
+		void set_score(float score){this->score = score;}
 
 		void copy_job(job jb_src){
 		
@@ -72,6 +79,7 @@ class job{
 			req_core = jb_src.get_req_core();
 			t_req = jb_src.get_t_req();
 			host_alloc = jb_src.get_host_alloc();
+			score = jb_src.get_score();
 		}
 };
 
